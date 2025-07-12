@@ -58,6 +58,37 @@ const restartDevice = () => {
     });
 };
 
+const ledMode = ref("heartbeat");
+const toggleLed = () => {
+  const newMode = ledMode.value === "heartbeat" ? "on" : "heartbeat";
+  axios
+    .post(`/utils/onboardLedControl?mode=${newMode}`)
+    .then(() => {
+      ledMode.value = newMode;
+      useStateStore().showSnackbarMessage({
+        message: `Onboard LED set to ${newMode === "heartbeat" ? "heartbeat" : "solid on"} mode`,
+        color: "success"
+      });
+    })
+    .catch((error) => {
+      if (error.response) {
+        useStateStore().showSnackbarMessage({
+          message: "Unable to set onboard LED mode",
+          color: "error"
+        });
+      } else if (error.request) {
+        useStateStore().showSnackbarMessage({
+          message: "Error while trying to process the request! The backend didn't respond.",
+          color: "error"
+        });
+      } else {
+        useStateStore().showSnackbarMessage({
+          message: "An error occurred while trying to process the request.",
+          color: "error"
+        });
+      }
+    });
+};
 const address = inject<string>("backendHost");
 
 const offlineUpdate = ref();
@@ -242,19 +273,30 @@ const nukePhotonConfigDirectory = () => {
     <v-card-title class="pa-6">Device Control</v-card-title>
     <div class="pa-6 pt-0">
       <v-row>
-        <v-col cols="12" lg="4" md="6">
+        <v-col cols="12" lg="3" md="6">
           <v-btn color="error" @click="restartProgram">
             <v-icon start class="open-icon"> mdi-restart </v-icon>
             <span class="open-label">Restart PhotonVision</span>
           </v-btn>
         </v-col>
-        <v-col cols="12" lg="4" md="6">
+        <v-col cols="12" lg="3" md="6">
           <v-btn color="error" @click="restartDevice">
             <v-icon start class="open-icon"> mdi-restart-alert </v-icon>
             <span class="open-label">Restart Device</span>
           </v-btn>
         </v-col>
-        <v-col cols="12" lg="4">
+        <v-col cols="12" lg="3" md="6">
+          <v-btn 
+            :color="ledMode === 'heartbeat' ? 'success' : 'warning'" 
+            @click="toggleLed"
+          >
+            <v-icon start class="open-icon"> 
+              {{ ledMode === 'heartbeat' ? 'mdi-heart-pulse' : 'mdi-lightbulb-on' }}
+            </v-icon>
+            <span class="open-label">Identify Board</span>
+          </v-btn>
+        </v-col>
+        <v-col cols="12" lg="3">
           <v-btn color="secondary" @click="openOfflineUpdatePrompt">
             <v-icon start class="open-icon"> mdi-upload </v-icon>
             <span class="open-label">Offline Update</span>

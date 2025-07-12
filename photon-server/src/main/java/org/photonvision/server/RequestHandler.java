@@ -612,6 +612,40 @@ public class RequestHandler {
         ctx.status(HardwareManager.getInstance().restartDevice() ? 204 : 500);
     }
 
+    public static void onOnboardLedControlRequest(Context ctx) {
+        try {
+            String mode = ctx.queryParam("mode");
+            if (mode == null) {
+                mode = "heartbeat";
+            }
+            
+            ShellExec shell = new ShellExec();
+            String command;
+            if ("heartbeat".equals(mode)) {
+                command = "echo heartbeat > /sys/class/leds/user-led2/trigger";
+            } else if ("on".equals(mode)) {
+                command = "echo default-on > /sys/class/leds/user-led2/trigger";
+            } else {
+                ctx.status(400);
+                ctx.result("Invalid mode. Use 'heartbeat' or 'on'");
+                return;
+            }
+            
+            int exitCode = shell.executeBashCommand("sudo " + command);
+            if (exitCode == 0) {
+                ctx.status(200);
+                ctx.result("Onboard LED mode set to " + mode);
+            } else {
+                ctx.status(500);
+                ctx.result("Failed to set onboard LED mode");
+            }
+        } catch (Exception e) {
+            logger.error("Error setting onboard LED mode", e);
+            ctx.status(500);
+            ctx.result("Error setting onboard LED mode: " + e.getMessage());
+        }
+    }
+
     private record CameraNicknameChangeRequest(String name, String cameraUniqueName) {}
 
     public static void onCameraNicknameChangeRequest(Context ctx) {

@@ -133,6 +133,7 @@ public class Server {
         app.get("/api/utils/photonvision-journalctl.txt", RequestHandler::onLogExportRequest);
         app.post("/api/utils/restartProgram", RequestHandler::onProgramRestartRequest);
         app.post("/api/utils/restartDevice", RequestHandler::onDeviceRestartRequest);
+        app.post("/api/utils/onboardLedControl", RequestHandler::onOnboardLedControlRequest);
         app.post("/api/utils/publishMetrics", RequestHandler::onMetricsPublishRequest);
         app.get("/api/utils/getImageSnapshots", RequestHandler::onImageSnapshotsRequest);
         app.get("/api/utils/getCalSnapshot", RequestHandler::onCalibrationSnapshotRequest);
