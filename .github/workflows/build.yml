@@ -36,7 +36,7 @@ jobs:
 
     name: "Photonlib - Build Examples - ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
-    needs: [build-photonlib-host, build-photonlib-docker]
+    needs: [build-photonlib-host, build-photonlib-docker, build-photonlib-vendorjson]
 
     steps:
       - name: Checkout code
@@ -68,9 +68,18 @@ jobs:
         run: |
           mkdir -p ~/.m2/repository/
           mv maven/org ~/.m2/repository/
+      # Download vendordep JSON artifact
+      - uses: actions/download-artifact@v7
+        with:
+          name: photonlib-vendor-json
+          path: vendordeps-temp
       - name: Copy vendordeps
         shell: bash
         run: |
+          # Find the generated vendordep JSON (it has version in filename)
+          VENDORDEP_JSON=$(find vendordeps-temp -name "photonlib-*.json" | head -n 1)
+          echo "Found vendordep JSON: $VENDORDEP_JSON"
+          
           for vendordep_folder in photonlib-*-examples/*/; do
           # Remove trailing slash for cross-platform compatibility
             vendordep_folder="${vendordep_folder%/}"
@@ -78,7 +87,7 @@ jobs:
             # Filter for projects only
             if [ -e "$vendordep_folder/build.gradle" ]; then
               mkdir -p "$vendordep_folder/vendordeps/"
-              cp vendordeps/photonlib-json-1.0.json "$vendordep_folder/vendordeps/"
+              cp "$VENDORDEP_JSON" "$vendordep_folder/vendordeps/photonlib.json"
             fi
           done
       - name: Build Java examples
@@ -600,7 +609,7 @@ jobs:
   release:
     # Require smoketest-native so that if those fail, we don't release broken artifacts
     needs: [build-photonlib-vendorjson, build-image, combine, build-package-linux, build-package-macos, build-package-windows, run-smoketest-native]
-    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    if: github.ref == ('refs/heads/main' || startsWith(github.ref, 'refs/tags/v')) && github.repository == 'PhotonVision/photonvision'
     runs-on: ubuntu-24.04
     steps:
       # Download all fat JARs
