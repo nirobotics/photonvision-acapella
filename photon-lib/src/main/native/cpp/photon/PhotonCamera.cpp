@@ -24,9 +24,6 @@
 
 #include "photon/PhotonCamera.h"
 
-#include <hal/FRCUsageReporting.h>
-#include <net/TimeSyncServer.h>
-
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -36,6 +33,8 @@
 #include <frc/Errors.h>
 #include <frc/RobotController.h>
 #include <frc/Timer.h>
+#include <hal/FRCUsageReporting.h>
+#include <net/TimeSyncServer.h>
 #include <opencv2/core.hpp>
 #include <opencv2/core/mat.hpp>
 #include <wpi/json.h>
@@ -69,9 +68,16 @@ inline void verifyDependencies() {
     bfw +=
         "\n>>>                                          \n"
         ">>> This is neither tested nor supported.    \n"
-        ">>> You MUST update PhotonVision,            \n"
-        ">>> PhotonLib, or both.                      \n"
-        ">>> Verify the output of `./gradlew dependencies` \n"
+        ">>> You MUST update WPILib, PhotonLib, or both.\n"
+        ">>> Check `./gradlew dependencies` and ensure\n"
+        ">>> all mentions of WPILib match the version \n"
+        ">>> that PhotonLib was built for. If you find a"
+        ">>> a mismatched version in a dependency, you\n"
+        ">>> must take steps to update the version of \n"
+        ">>> WPILib used in that dependency. If you do\n"
+        ">>> not control that dependency and an updated\n"
+        ">>> version is not available, contact the    \n"
+        ">>> developers of that dependency.           \n"
         ">>>                                          \n"
         ">>> Your code will now crash.                \n"
         ">>> We hope your day gets better.            \n"
@@ -104,9 +110,16 @@ inline void verifyDependencies() {
     bfw +=
         "\n>>>                                          \n"
         ">>> This is neither tested nor supported.    \n"
-        ">>> You MUST update PhotonVision,            \n"
-        ">>> PhotonLib, or both.                      \n"
-        ">>> Verify the output of `./gradlew dependencies` \n"
+        ">>> You MUST update WPILib, PhotonLib, or both.\n"
+        ">>> Check `./gradlew dependencies` and ensure\n"
+        ">>> all mentions of OpenCV match the version \n"
+        ">>> that PhotonLib was built for. If you find a"
+        ">>> a mismatched version in a dependency, you\n"
+        ">>> must take steps to update the version of \n"
+        ">>> OpenCV used in that dependency. If you do\n"
+        ">>> not control that dependency and an updated\n"
+        ">>> version is not available, contact the    \n"
+        ">>> developers of that dependency.           \n"
         ">>>                                          \n"
         ">>> Your code will now crash.                \n"
         ">>> We hope your day gets better.            \n"
@@ -183,6 +196,9 @@ PhotonCamera::PhotonCamera(nt::NetworkTableInstance instance,
           rootTable->GetBooleanTopic("driverMode").Subscribe(false)),
       driverModePublisher(
           rootTable->GetBooleanTopic("driverModeRequest").Publish()),
+      fpsLimitSubscriber(rootTable->GetIntegerTopic("fpsLimit").Subscribe(-1)),
+      fpsLimitPublisher(
+          rootTable->GetIntegerTopic("fpsLimitRequest").Publish()),
       heartbeatSubscriber(
           rootTable->GetIntegerTopic("heartbeat").Subscribe(-1)),
       topicNameSubscriber(instance, PHOTON_PREFIX, {.topicsOnly = true}),
@@ -309,6 +325,14 @@ void PhotonCamera::SetDriverMode(bool driverMode) {
   driverModePublisher.Set(driverMode);
 }
 
+bool PhotonCamera::GetDriverMode() const { return driverModeSubscriber.Get(); }
+
+int PhotonCamera::GetFPSLimit() const { return fpsLimitSubscriber.Get(); }
+
+void PhotonCamera::SetFPSLimit(int fpsLimit) {
+  fpsLimitPublisher.Set(fpsLimit);
+}
+
 void PhotonCamera::TakeInputSnapshot() {
   inputSaveImgEntry.Set(inputSaveImgSubscriber.Get() + 1);
 }
@@ -316,8 +340,6 @@ void PhotonCamera::TakeInputSnapshot() {
 void PhotonCamera::TakeOutputSnapshot() {
   outputSaveImgEntry.Set(outputSaveImgSubscriber.Get() + 1);
 }
-
-bool PhotonCamera::GetDriverMode() const { return driverModeSubscriber.Get(); }
 
 void PhotonCamera::SetPipelineIndex(int index) { pipelineIndexPub.Set(index); }
 

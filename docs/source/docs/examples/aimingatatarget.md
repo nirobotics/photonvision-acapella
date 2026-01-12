@@ -6,7 +6,7 @@ The following example is from the PhotonLib example repository ([Java](https://g
 
 - A Robot
 - A camera mounted rigidly to the robot's frame, centered and pointed forward.
-- A coprocessor running PhotonVision with an AprilTag or Aruco 2D Pipeline.
+- A coprocessor running PhotonVision with an AprilTag or ArUco 2D Pipeline.
 - [A printout of AprilTag 7](https://firstfrc.blob.core.windows.net/frc2025/FieldAssets/Apriltag_Images_and_User_Guide.pdf), mounted on a rigid and flat surface.
 
 ## Code
@@ -19,8 +19,10 @@ In this example, while the operator holds a button down, the robot will turn tow
 
 ```{eval-rst}
 .. tab-set::
+    :sync-group: code
 
     .. tab-item:: Java
+       :sync: java
 
        .. rli:: https://raw.githubusercontent.com/PhotonVision/photonvision/abe95dfaa055bbe3609f72cfcaaba0f96ee7978c/photonlib-java-examples/aimattarget/src/main/java/frc/robot/Robot.java
          :language: java
@@ -29,6 +31,7 @@ In this example, while the operator holds a button down, the robot will turn tow
          :lineno-start: 77
 
     .. tab-item:: C++ (Header)
+       :sync: c++
 
        .. rli:: https://raw.githubusercontent.com/PhotonVision/photonvision/abe95dfaa055bbe3609f72cfcaaba0f96ee7978c/photonlib-cpp-examples/aimattarget/src/main/include/Robot.h
          :language: c++
@@ -37,6 +40,7 @@ In this example, while the operator holds a button down, the robot will turn tow
          :lineno-start: 25
 
     .. tab-item:: C++ (Source)
+       :sync: c++
 
        .. rli:: https://raw.githubusercontent.com/PhotonVision/photonvision/abe95dfaa055bbe3609f72cfcaaba0f96ee7978c/photonlib-cpp-examples/aimattarget/src/main/cpp/Robot.cpp
          :language: c++
@@ -45,6 +49,7 @@ In this example, while the operator holds a button down, the robot will turn tow
          :lineno-start: 56
 
     .. tab-item:: Python
+       :sync: python
 
        .. rli:: https://raw.githubusercontent.com/PhotonVision/photonvision/abe95dfaa055bbe3609f72cfcaaba0f96ee7978c/photonlib-python-examples/aimattarget/robot.py
          :language: python
