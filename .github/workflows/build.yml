@@ -79,7 +79,7 @@ jobs:
           # Find the generated vendordep JSON (it has version in filename)
           VENDORDEP_JSON=$(find vendordeps-temp -name "photonlib-*.json" | head -n 1)
           echo "Found vendordep JSON: $VENDORDEP_JSON"
-          
+
           for vendordep_folder in photonlib-*-examples/*/; do
           # Remove trailing slash for cross-platform compatibility
             vendordep_folder="${vendordep_folder%/}"
