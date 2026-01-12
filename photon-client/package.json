@@ -15,7 +15,6 @@
     "test": "playwright test",
     "test-ui": "playwright test --ui",
     "test-setup": "playwright install --with-deps"
-
   },
   "dependencies": {
     "@fontsource/prompt": "^5.2.6",

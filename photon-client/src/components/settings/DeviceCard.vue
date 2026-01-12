@@ -8,10 +8,43 @@ import PvDeleteModal from "@/components/common/pv-delete-modal.vue";
 import MetricsChart from "./MetricsChart.vue";
 import { useTheme } from "vuetify";
 import { axiosPost, forceReloadPage } from "@/lib/PhotonUtils";
+import axios from "axios";
 import TooltippedLabel from "@/components/common/pv-tooltipped-label.vue";
 import { metricsHistorySnapshot } from "@/stores/settings/GeneralSettingsStore";
 
 const theme = useTheme();
+
+const ledMode = ref("heartbeat");
+const toggleLed = () => {
+  const newMode = ledMode.value === "heartbeat" ? "on" : "heartbeat";
+  axios
+    .post(`/utils/onboardLedControl?mode=${newMode}`)
+    .then(() => {
+      ledMode.value = newMode;
+      useStateStore().showSnackbarMessage({
+        message: `Onboard LED set to ${newMode === "heartbeat" ? "heartbeat" : "solid on"} mode`,
+        color: "success"
+      });
+    })
+    .catch((error) => {
+      if (error.response) {
+        useStateStore().showSnackbarMessage({
+          message: "Unable to set onboard LED mode",
+          color: "error"
+        });
+      } else if (error.request) {
+        useStateStore().showSnackbarMessage({
+          message: "Error while trying to process the request! The backend didn't respond.",
+          color: "error"
+        });
+      } else {
+        useStateStore().showSnackbarMessage({
+          message: "An error occurred while trying to process the request.",
+          color: "error"
+        });
+      }
+    });
+};
 
 const restartProgram = () => {
   axiosPost("/utils/restartProgram", "restart PhotonVision");
@@ -335,7 +368,7 @@ watch(metricsHistorySnapshot, () => {
         </v-card-text>
         <v-card-text class="pt-0 flex-0-0">
           <v-row>
-            <v-col cols="12" sm="6">
+            <v-col cols="12" sm="4">
               <v-btn
                 color="buttonActive"
                 :variant="theme.global.name.value === 'LightTheme' ? 'elevated' : 'outlined'"
@@ -345,7 +378,19 @@ watch(metricsHistorySnapshot, () => {
                 <span class="open-label">Reboot Device</span>
               </v-btn>
             </v-col>
-            <v-col cols="12" sm="6">
+            <v-col cols="12" sm="4">
+              <v-btn
+                :color="ledMode === 'heartbeat' ? 'success' : 'warning'"
+                :variant="theme.global.name.value === 'LightTheme' ? 'elevated' : 'outlined'"
+                @click="toggleLed"
+              >
+                <v-icon start class="open-icon" size="large">
+                  {{ ledMode === "heartbeat" ? "mdi-heart-pulse" : "mdi-lightbulb-on" }}
+                </v-icon>
+                <span class="open-label">Identify Board</span>
+              </v-btn>
+            </v-col>
+            <v-col cols="12" sm="4">
               <v-btn
                 color="error"
                 :variant="theme.global.name.value === 'LightTheme' ? 'elevated' : 'outlined'"

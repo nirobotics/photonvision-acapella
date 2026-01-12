@@ -982,7 +982,7 @@ public class RequestHandler {
             if (mode == null) {
                 mode = "heartbeat";
             }
-            
+
             ShellExec shell = new ShellExec();
             String command;
             if ("heartbeat".equals(mode)) {
@@ -994,7 +994,7 @@ public class RequestHandler {
                 ctx.result("Invalid mode. Use 'heartbeat' or 'on'");
                 return;
             }
-            
+
             int exitCode = shell.executeBashCommand("sudo " + command);
             if (exitCode == 0) {
                 ctx.status(200);
